@@ -1,81 +1,41 @@
 /* src/index.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
 :root {
-  --font-primary: 'Inter', sans-serif;
-  --bg-dark: #121826;
-  --bg-card: #1f2937;
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --border-color: #374151;
-  --accent-color: #3b82f6;
-  --status-ok: #10b981;
-  --status-fault: #ef4444;
+  --font-primary: 'Inter', sans-serif; --bg-dark: #121826; --bg-card: #1f2937;
+  --text-primary: #f9fafb; --text-secondary: #9ca3af; --border-color: #374151;
+  --accent-color: #3b82f6; --status-ok: #10b981; --status-fault: #ef4444;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: var(--font-primary);
-  background-color: var(--bg-dark);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+body { font-family: var(--font-primary); background-color: var(--bg-dark); color: var(--text-primary); }
 #root { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-
 .header-container { margin-bottom: 3rem; text-align: center; }
-
 h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  letter-spacing: -1.5px;
+  font-size: 3rem; font-weight: 700; letter-spacing: -1.5px;
   background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 2px 20px rgba(156, 163, 175, 0.1);
 }
-
 .tagline { margin-top: 0.5rem; font-size: 1.1rem; color: var(--text-secondary); }
-
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-
 .sensor-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: left;
+  background-color: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: 12px; padding: 1.5rem; text-align: left;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: fadeIn 0.5s ease-out;
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; animation: fadeIn 0.5s ease-out;
 }
+.sensor-card-link { text-decoration: none; color: inherit; flex-grow: 1; }
 .sensor-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); }
-
-.sensor-card::before {
-  content: ''; position: absolute; top: 1.5rem; left: -5px; width: 10px; height: 10px; border-radius: 50%;
-}
+.sensor-card::before { content: ''; position: absolute; top: 1.5rem; left: -5px; width: 10px; height: 10px; border-radius: 50%; }
 .sensor-card.status-ok::before { background-color: var(--status-ok); box-shadow: 0 0 10px var(--status-ok), 0 0 20px var(--status-ok); }
 .sensor-card.status-fault::before { background-color: var(--status-fault); box-shadow: 0 0 10px var(--status-fault), 0 0 20px var(--status-fault); }
-
 .card-header { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding-left: 1rem; }
 .card-data p { margin: 0.75rem 0; font-size: 1rem; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
 .card-data p:last-child { border-bottom: none; }
 .card-data span { font-weight: 400; color: var(--text-secondary); margin-right: 8px; }
 .timestamp { margin-top: 1rem; font-size: 0.875rem; color: var(--text-secondary); text-align: right; }
-
 .loading-message, .error-message { font-size: 1.2rem; color: var(--text-secondary); text-align: center; padding: 4rem; }
 .error-message { background-color: rgba(239, 68, 68, 0.1); color: var(--status-fault); border: 1px solid var(--status-fault); border-radius: 8px; }
-
-.map-button {
-  width: 100%; padding: 0.75rem; margin-top: 1rem; background-color: var(--border-color);
-  color: var(--text-primary); border: none; border-radius: 8px; font-weight: 600;
-  cursor: pointer; transition: background-color 0.2s ease;
-}
+.map-button { width: 100%; padding: 0.75rem; margin-top: 1rem; background-color: var(--border-color); color: var(--text-primary); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease; }
 .map-button:hover { background-color: var(--accent-color); }
-
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
