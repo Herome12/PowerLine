@@ -1,0 +1,22 @@
+/* src/components/MapModal.css */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75); display: flex;
+  justify-content: center; align-items: center; z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+.modal-content {
+  background-color: var(--bg-card); padding: 2rem; border-radius: 12px;
+  width: 90%; max-width: 800px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease-out;
+}
+.modal-content h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-primary); }
+
+.close-button {
+  display: block; margin-top: 1rem; margin-left: auto; padding: 0.75rem 1.5rem;
+  border: none; background-color: var(--accent-color); color: var(--text-primary);
+  border-radius: 8px; cursor: pointer; transition: background-color 0.2s;
+}
+.close-button:hover { background-color: #2563eb; }
+
+@keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
