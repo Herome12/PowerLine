@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css"; // 2. Import the CSS
 
 import HomePage from "./components/Home.jsx";
 import DashboardPage from "./components/ProctoredLive.jsx";
+import NodeDetailPage from "./components/NodeDetailPage.jsx";
 
 const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "dashboard", element: <DashboardPage /> },
+       {
+        path: 'node/:nodeId',
+        element: <NodeDetailPage />,
+      },
     ],
   },
 ]);
