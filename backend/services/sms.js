@@ -1,8 +1,8 @@
-// smsService.js
+
 const twilio = require('twilio');
 require('dotenv').config();
 
-// Initialize Twilio client
+
 const client = twilio(
     process.env.TWILIO_ACCOUNT_SID,
     process.env.TWILIO_AUTH_TOKEN
@@ -10,7 +10,7 @@ const client = twilio(
 
 const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
-// Function to send breakdown alert SMS
+
 async function sendBreakdownAlert(phoneNumbers, breakdownData) {
     const message = `🚨 BREAKDOWN ALERT
 Node: ${breakdownData.node_id}
@@ -28,14 +28,14 @@ Immediate action required!`;
             const messageInstance = await client.messages.create({
                 body: message,
                 from: fromNumber,
-                to: number // Make sure number includes country code like +919876543210
+                to: number 
             });
             
-            console.log(`✅ SMS sent to ${number}. SID: ${messageInstance.sid}`);
+            console.log(` SMS sent to ${number}. SID: ${messageInstance.sid}`);
             return { success: true, number, sid: messageInstance.sid };
             
         } catch (error) {
-            console.error(`❌ SMS failed for ${number}:`, error.message);
+            console.error(` SMS failed for ${number}:`, error.message);
             return { success: false, number, error: error.message };
         }
     });
@@ -51,16 +51,16 @@ Immediate action required!`;
 async function sendTestSMS(phoneNumber) {
     try {
         const messageInstance = await client.messages.create({
-            body: '🧪 Test SMS from Powerline Monitoring System. If you receive this, SMS setup is working!',
+            body: ' Test SMS from Powerline Monitoring System. If you receive this, SMS setup is working!',
             from: fromNumber,
             to: phoneNumber
         });
         
-        console.log(`✅ Test SMS sent successfully. SID: ${messageInstance.sid}`);
+        console.log(` Test SMS sent successfully. SID: ${messageInstance.sid}`);
         return true;
         
     } catch (error) {
-        console.error('❌ Test SMS failed:', error.message);
+        console.error(' Test SMS failed:', error.message);
         return false;
     }
 }
@@ -75,11 +75,11 @@ async function sendCustomSMS(phoneNumbers, message) {
                 to: number
             });
             
-            console.log(`✅ Custom SMS sent to ${number}. SID: ${messageInstance.sid}`);
+            console.log(` Custom SMS sent to ${number}. SID: ${messageInstance.sid}`);
             return { success: true, number, sid: messageInstance.sid };
             
         } catch (error) {
-            console.error(`❌ Custom SMS failed for ${number}:`, error.message);
+            console.error(` Custom SMS failed for ${number}:`, error.message);
             return { success: false, number, error: error.message };
         }
     });
@@ -91,7 +91,7 @@ async function sendCustomSMS(phoneNumbers, message) {
     return results;
 }
 
-// Function to send single SMS
+
 async function sendSingleSMS(phoneNumber, message) {
     try {
         const messageInstance = await client.messages.create({
@@ -100,25 +100,25 @@ async function sendSingleSMS(phoneNumber, message) {
             to: phoneNumber
         });
         
-        console.log(`✅ SMS sent to ${phoneNumber}. SID: ${messageInstance.sid}`);
+        console.log(` SMS sent to ${phoneNumber}. SID: ${messageInstance.sid}`);
         return { success: true, sid: messageInstance.sid };
         
     } catch (error) {
-        console.error(`❌ SMS failed for ${phoneNumber}:`, error.message);
+        console.error(` SMS failed for ${phoneNumber}:`, error.message);
         return { success: false, error: error.message };
     }
 }
 
-// Function to validate phone number format
+
 function validatePhoneNumber(phoneNumber) {
-    // Check if number starts with + and has country code
+    
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     return phoneRegex.test(phoneNumber);
 }
 
-// Function to format Indian phone number
+
 function formatIndianNumber(phoneNumber) {
-    // Remove any spaces, dashes, or other characters
+    
     const cleaned = phoneNumber.replace(/\D/g, '');
     
     // If number starts with 91, add +
@@ -131,7 +131,7 @@ function formatIndianNumber(phoneNumber) {
         return '+91' + cleaned;
     }
     
-    // Return as is if already formatted
+    
     return phoneNumber;
 }
 
@@ -139,16 +139,16 @@ function formatIndianNumber(phoneNumber) {
 async function checkTwilioStatus() {
     try {
         const account = await client.api.accounts(process.env.TWILIO_ACCOUNT_SID).fetch();
-        console.log('✅ Twilio account status:', account.status);
-        console.log('💰 Account balance: $' + (account.balance || 'N/A'));
+        console.log(' Twilio account status:', account.status);
+        console.log(' Account balance: $' + (account.balance || 'N/A'));
         return true;
     } catch (error) {
-        console.error('❌ Twilio account check failed:', error.message);
+        console.error(' Twilio account check failed:', error.message);
         return false;
     }
 }
 
-// Export all functions
+
 module.exports = {
     sendBreakdownAlert,
     sendTestSMS,
