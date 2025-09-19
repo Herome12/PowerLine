@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const mqtt = require('mqtt');
 const nodemailer = require('nodemailer');
-const { sendBreakdownAlert, checkTwilioStatus } = require('./smsService');
+const { sendBreakdownAlert, checkTwilioStatus } = require('./services/smsService');
 require('dotenv').config();
 
 const apiRoutes = require('./routes/apiroutes');
