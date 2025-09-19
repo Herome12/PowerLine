@@ -98,11 +98,16 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // --- MQTT Client Setup ---
 const mqttClient = mqtt.connect('mqtt://broker.hivemq.com'); // Using a public broker for example
+<<<<<<< HEAD
 const TOPICS = {
     SENSOR_DATA: 'powerline/sensor/data',
     BREAKDOWN: 'powerline/breakdown'
 };
 
+=======
+const MQTT_TOPIC = 'powerline/sensor/data';
+ 
+>>>>>>> 6a957d4118048a18890a994ed6e03a89b0919e2e
 mqttClient.on('connect', () => {
     console.log('✅ MQTT client connected.');
     mqttClient.subscribe(TOPICS.SENSOR_DATA, (err) => {
