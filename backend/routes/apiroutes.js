@@ -31,4 +31,59 @@ router.get('/data', async (req, res) => {
     }
 });
 
+// historical data 
+router.post('/data', async (req, res) => {
+    try {
+        const data = req.body;
+
+        // Check if the incoming data is an array (for batch history)
+        if (Array.isArray(data)) {
+            console.log(`Received a batch of ${data.length} historical records.`);
+            // Use insertMany for efficient bulk insertion
+            const savedData = await SensorData.insertMany(data);
+            res.status(201).json({ message: 'Successfully saved batch data', count: savedData.length });
+        
+        } else { // Handle a single real-time data object
+            console.log('Received a single real-time record.');
+            const newData = new SensorData(data);
+            const savedData = await newData.save();
+            res.status(201).json(savedData);
+        }
+
+    } catch (error) {
+        console.error("Error saving data:", error);
+        res.status(400).json({ message: 'Invalid data format', error: error.message });
+    }
+});
+
+//get request 
+// routes/api.routes.js
+
+// ... (your existing POST and GET routes)
+
+// --- GET Endpoint for a single node's history ---
+// URL: GET /api/data/history/:nodeId
+router.get('/data/history/:nodeId', async (req, res) => {
+    try {
+        const { nodeId } = req.params;
+
+        // Calculate the date 24 hours ago from now
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        const history = await SensorData.find({
+            node_id: nodeId,
+            timestamp: { $gte: twentyFourHoursAgo } // Get data from the last 24 hours
+        }).sort({ timestamp: 'asc' }); // Sort by time ascending
+
+        if (!history) {
+            return res.status(404).json({ message: 'No historical data found for this node.' });
+        }
+
+        res.status(200).json(history);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching historical data', error: error.message });
+    }
+});
+
+
 module.exports = router;
