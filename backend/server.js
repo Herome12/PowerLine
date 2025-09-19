@@ -13,7 +13,7 @@ const {SensorData,Authority,Breakdown_data} = require('./modals/sensorModal');
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secure: false, // true for 465, false for other ports
+    secure: false, 
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -21,9 +21,9 @@ const transporter = nodemailer.createTransport({
 });
 transporter.verify((error, success) => {
     if (error) {
-        console.log('❌ Email configuration error:', error);
+        console.log(' Email configuration error:', error);
     } else {
-        console.log('✅ Email server ready to send messages');
+        console.log(' Email server ready to send messages');
     }
 });
 
@@ -70,13 +70,13 @@ async function sendBreakdownAlerts(gmails, breakdownData) {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Breakdown alert emails sent successfully');
-        console.log('📧 Message ID:', info.messageId);
-        console.log('📨 Emails sent to:', gmails);
+        console.log(' Breakdown alert emails sent successfully');
+        console.log(' Message ID:', info.messageId);
+        console.log(' Emails sent to:', gmails);
         
         return true;
     } catch (error) {
-        console.error('❌ Error sending breakdown alert emails:', error.message);
+        console.error(' Error sending breakdown alert emails:', error.message);
         return false;
     }
 }
@@ -93,31 +93,30 @@ mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
-.then(() => console.log('✅ MongoDB connected successfully.'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+.then(() => console.log(' MongoDB connected successfully.'))
+.catch(err => console.error(' MongoDB connection error:', err));
 
 // --- MQTT Client Setup ---
 const mqttClient = mqtt.connect('mqtt://broker.hivemq.com'); // Using a public broker for example
-<<<<<<< HEAD
+
 const TOPICS = {
     SENSOR_DATA: 'powerline/sensor/data',
     BREAKDOWN: 'powerline/breakdown'
 };
 
-=======
-const MQTT_TOPIC = 'powerline/sensor/data';
+
  
->>>>>>> 6a957d4118048a18890a994ed6e03a89b0919e2e
+
 mqttClient.on('connect', () => {
-    console.log('✅ MQTT client connected.');
+    console.log(' MQTT client connected.');
     mqttClient.subscribe(TOPICS.SENSOR_DATA, (err) => {
         if (!err) {
-            console.log(`📡 Subscribed to topic: ${TOPICS.SENSOR_DATA}`);
+            console.log(` Subscribed to topic: ${TOPICS.SENSOR_DATA}`);
         }
     });
      mqttClient.subscribe(TOPICS.BREAKDOWN, (err) => {
         if (!err) {
-            console.log(`📡 Subscribed to topic: ${TOPICS.BREAKDOWN}`);
+            console.log(` Subscribed to topic: ${TOPICS.BREAKDOWN}`);
         }
     })
 });
@@ -154,9 +153,9 @@ else{
         const smsResults = await sendBreakdownAlert(numbers, data);
                 
                 if (emailSent ) {
-                    console.log('🚨 Breakdown alerts sent successfully to all authorities');
+                    console.log(' Breakdown alerts sent successfully to all authorities');
                 } else {
-                    console.log('❌ Failed to send breakdown alerts');
+                    console.log(' Failed to send breakdown alerts');
                 }
 
     } catch (error) {
