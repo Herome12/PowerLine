@@ -1,16 +1,14 @@
-// src/App.js
 import React from "react";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { ToastContainer } from "react-toastify"; // 1. Import ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // 2. Import the CSS
-
 import HomePage from "./components/Home.jsx";
 import DashboardPage from "./components/ProctoredLive.jsx";
 import NodeDetailPage from "./components/NodeDetailPage.jsx";
+import AlertHistoryPage from "./components/alerthistory.jsx"; // Add this import
 
 const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-
 if (!googleMapsApiKey) {
   console.error("⚠️ Google Maps API key is missing! Add REACT_APP_GOOGLE_MAPS_API_KEY in your .env file.");
 }
@@ -21,7 +19,6 @@ function Layout() {
     <div>
       {/* Nested routes will appear here */}
       <Outlet />
-
       {/* 3. Add the ToastContainer component here */}
       <ToastContainer
         position="top-right"
@@ -47,7 +44,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "dashboard", element: <DashboardPage /> },
-       {
+      { path: "alerts", element: <AlertHistoryPage /> }, // Add this route
+      {
         path: 'node/:nodeId',
         element: <NodeDetailPage />,
       },
