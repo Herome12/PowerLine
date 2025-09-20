@@ -6,7 +6,7 @@ function SensorCard({ node }) {
   const [location, setLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(true);
 
-  const isFault = (node.relay_status === 'OFF' || node.relay === 'OFF') || node.current === 0;
+  const isFault = (node.relay === 'OFF' || node.relay === 'OFF') || node.current === 0;
   const statusClass = isFault ? 'status-fault' : 'status-ok';
 
   const formattedTimestamp = new Date(node.timestamp).toLocaleString('en-IN', {
