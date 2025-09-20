@@ -37,8 +37,15 @@ mongoose.connect(process.env.MONGO_URI, {
     .then(() => console.log(' MongoDB connected successfully.'))
     .catch(err => console.error(' MongoDB connection error:', err));
 
-// --- MQTT Client Setup ---
-const mqttClient = mqtt.connect('mqtt://broker.hivemq.com');
+// --- MQTT Client Setup (Updated for HiveMQ Cloud) ---
+const mqttOptions = {
+  username: process.env.HIVEMQ_USERNAME,
+  password: process.env.HIVEMQ_PASSWORD,
+  port: process.env.HIVEMQ_PORT
+};
+
+// Use `mqtts://` for a secure TLS connection
+const mqttClient = mqtt.connect(`mqtts://${process.env.HIVEMQ_URL}`, mqttOptions);
 
 const TOPICS = {
     SENSOR_DATA: 'powerline/sensor/data',
@@ -46,7 +53,7 @@ const TOPICS = {
 };
 
 mqttClient.on('connect', () => {
-    console.log(' MQTT client connected.');
+    console.log(' MQTT client connected securely to HiveMQ Cloud.');
     mqttClient.subscribe(TOPICS.SENSOR_DATA, (err) => {
         if (!err) console.log(` Subscribed to topic: ${TOPICS.SENSOR_DATA}`);
     });
@@ -54,6 +61,11 @@ mqttClient.on('connect', () => {
         if (!err) console.log(` Subscribed to topic: ${TOPICS.BREAKDOWN}`);
     });
 });
+
+mqttClient.on('error', (error) => {
+    console.error('MQTT Connection Error:', error);
+});
+
 
 mqttClient.on('message', async (topic, message) => {
     const payload = message.toString();
@@ -76,7 +88,6 @@ mqttClient.on('message', async (topic, message) => {
 
             console.log('Saved Breakdown data from MQTT to database.');
             
-            // ▼▼▼ FIX #1: Use the correct variable name 'newData' ▼▼▼
             io.emit('new-breakdown', newData); 
             
             console.log('Emitted "new-breakdown" event to website clients.');
@@ -111,7 +122,6 @@ app.get('/', (req, res) => {
 });
 
 // --- Start Server ---
-// ▼▼▼ FIX #2: Start the 'server' object, not the 'app' object ▼▼▼
 server.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
