@@ -22,7 +22,6 @@ function Layout() {
       {/* Nested routes will appear here */}
       <Outlet />
 
-      {/* 3. Add the ToastContainer component here */}
       <ToastContainer
         position="top-right"
         autoClose={5000}
