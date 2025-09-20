@@ -19,7 +19,10 @@ function HomePage() {
         <Link to="/dashboard" className="cta-button">
           View Live Dashboard
         </Link>
-        <button onClick={notify}>Show Toast</button>
+        
+         <Link to="/alerts" className="cta-button">
+          View Breakdown History
+        </Link>
       </div>
     </div>
   );
