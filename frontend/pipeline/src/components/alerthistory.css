@@ -1,0 +1,189 @@
+/* src/components/alerthistory.css */
+.alert-history-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #0f172a;
+}
+
+.alert-history-header {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.alert-history-header h1 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.total-count {
+  margin: 4px 0;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.refresh-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.refresh-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.error-message {
+  text-align: center;
+  padding: 20px;
+  background: rgba(59, 7, 12, 0.8);
+  backdrop-filter: blur(10px);
+  color: #f87171;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  margin-bottom: 16px;
+}
+
+.retry-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.alerts-table-container {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.alerts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.alerts-table thead {
+  background: rgba(51, 65, 85, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+.alerts-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.alerts-table td {
+  padding: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  color: #cbd5e1;
+}
+
+.alert-row:hover {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+
+.alert-row:last-child td {
+  border-bottom: none;
+}
+
+.node-id {
+  font-family: 'Monaco', 'Consolas', monospace;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.issue-id {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.timestamp {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.no-alerts {
+  text-align: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+}
+
+.no-alerts h3 {
+  color: #34d399;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.no-alerts p {
+  color: #cbd5e1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .alert-history-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .alerts-table th,
+  .alerts-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+  
+  .node-id,
+  .issue-id {
+    padding: 3px 6px;
+    font-size: 12px;
+  }
+}
