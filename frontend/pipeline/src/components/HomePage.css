@@ -1,18 +1,74 @@
 /* src/pages/HomePage.css */
-.home-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; padding: 2rem; }
-.hero-section { max-width: 800px; }
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.hero-section {
+  max-width: 800px;
+}
+
 .hero-section h1 {
-  font-size: 3.5rem; font-weight: 700; letter-spacing: -1.5px;
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: -1.5px;
   background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   margin-bottom: 1rem;
 }
-.hero-section .tagline { font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2.5rem; }
+
+.hero-section .tagline {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+}
+
+/* Container for buttons */
+.cta-buttons {
+  display: flex;
+  gap: 20px; /* Gap between buttons */
+  justify-content: center;
+  flex-wrap: wrap; /* Wrap on mobile */
+}
 
 .cta-button {
-  display: inline-block; font-size: 1.1rem; font-weight: 600; color: var(--text-primary);
-  background-color: var(--accent-color); padding: 1rem 2rem; border-radius: 8px; text-decoration: none;
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background-color: var(--accent-color);
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
   transition: transform 0.2s ease, background-color 0.2s ease;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  margin: 0; /* Remove individual margins */
 }
-.cta-button:hover { transform: translateY(-3px); background-color: #2563eb; }
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  background-color: #2563eb;
+}
+
+/* Alternative: If not using container */
+.cta-button + .cta-button {
+  margin-left: 20px; /* Gap between consecutive buttons */
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .cta-buttons {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .cta-button + .cta-button {
+    margin-left: 0; /* Remove left margin on mobile */
+  }
+}
