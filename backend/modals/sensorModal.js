@@ -6,98 +6,34 @@ const GpsSchema = new mongoose.Schema({
 });
 
 const SensorDataSchema = new mongoose.Schema({
-    node_id: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    current: {
-        type: Number,
-        required: true,
-    },
-    voltage_present: {
-        type: Boolean,
-        required: true,
-    },
-    relay_status: {
-        type: String,
-        enum: ['ON', 'OFF', 'FAULT'],
-        required: true,
-    },
-    Alert_status:{
-        type:Boolean,
-        required:true,
-
-    },
-    gps: {
-        type: GpsSchema,
-        required: true,
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now,
-    },
+    node_id: { type: String, required: true, trim: true },
+    current: { type: Number, required: true },
+    voltage_present: { type: Boolean, required: true },
+    relay_status: { type: String, enum: ['ON', 'OFF', 'FAULT'], required: true },
+    Alert_status: { type: Boolean, required: true },
+    gps: { type: GpsSchema, required: true },
+    timestamp: { type: Date, default: Date.now },
 });
 
 const AuthoritySchema = new mongoose.Schema({
-    entity_id: {
-        type: String,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    number: {
-        type: String,
-        required: true,
-    },
-    gmail: {
-        type: String,
-        required: true,
-    },
-    pole_id: {
-        type: String,
-        required: true,
-    }
-}, 
-   
-);
+    entity_id: { type: String, required: true },
+    name: { type: String, required: true },
+    number: { type: String, required: true },
+    gmail: { type: String, required: true },
+    node_id: { type: String, required: true }
+});
 
 const BreakdownSchema = new mongoose.Schema({
-    node_id: {
-        type: String,
-        required: true,
-    },
-    breakdown_message: {
-        type: String,
-        required: true,
-    },
-    current: {
-        type: Number,
-        required: true,
-    },
-    voltage_present: {
-        type: Boolean,
-        required: true,
-    },
-    relay_status: {
-        type: String,
-        enum: ['ON', 'OFF', 'FAULT'],
-        required: true,
-    },
-    gps: {
-        type: GpsSchema,
-        required: true,
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now,
-    },
+    node_id: { type: String, required: true },
+    breakdown_message: { type: String, required: true },
+    current: { type: Number, required: true },
+    voltage_present: { type: Boolean, required: true },
+    relay_status: { type: String, enum: ['ON', 'OFF', 'FAULT'], required: true },
+    gps: { type: GpsSchema, required: true },
+    timestamp: { type: Date, default: Date.now },
 }, {
     timestamps: true
 });
-
 
 module.exports = {
     SensorData: mongoose.model('SensorData', SensorDataSchema),
