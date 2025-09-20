@@ -1,21 +1,41 @@
 const mongoose = require('mongoose');
 
 const GpsSchema = new mongoose.Schema({
-    lat: { type: Number},
-    lon: { type: Number },
+    lat: { type: Number, required: true },
+    lon: { type: Number, required: true },
 });
 
-// This schema is now flexible to accept the limited data from the ESP32.
+
 const SensorDataSchema = new mongoose.Schema({
-    nodeId: { type: String, required: true, trim: true }, 
-    current: { type: Number, required: true },
-    voltage: { type: Number },                            
-    relay: { type: String, enum: ['ON', 'OFF', 'FAULT'] }, 
-    Alert_status: { type: Boolean },                       
-    gps: { type: GpsSchema },                               
-    timestamp: { type: Date, default: Date.now },
+    nodeId: { 
+        type: String, 
+        required: true, 
+        trim: true,
+        unique: true, // Ensures only one record per nodeId
+        index: true   // Index for faster queries
+    },
+    current: { 
+        type: Number, 
+        required: true 
+    },
+    voltage: { 
+        type: Number, 
+        required: true 
+    },
+    relay: { 
+        type: String, 
+        enum: ['ON', 'OFF', 'FAULT'], 
+        required: true 
+    },
+    timestamp: { 
+        type: Date, 
+        required: true,
+        default: Date.now
+    },
+   
+}, {
+    timestamps: false // Don't auto-manage timestamps since we have our own
 });
-
 const AuthoritySchema = new mongoose.Schema({
     entity_id: { type: String, required: true },
     name: { type: String, required: true },
@@ -24,7 +44,6 @@ const AuthoritySchema = new mongoose.Schema({
     node_id: { type: String, required: true }
 });
 
-// This schema remains strict for detailed breakdown alerts.
 const BreakdownSchema = new mongoose.Schema({
     node_id: { type: String, required: true },
     breakdown_message: { type: String, required: true },
@@ -36,9 +55,26 @@ const BreakdownSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+const nodeLocationSchema = new mongoose.Schema({
+  nodeId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  latitude: {
+    type: Number,
+    required: true
+  },
+  longitude: {
+    type: Number,
+    required: true
+  }
+});
+
 
 module.exports = {
     SensorData: mongoose.model('SensorData', SensorDataSchema),
     Authority: mongoose.model('Authority', AuthoritySchema),
-    Breakdown_data: mongoose.model('Breakdown_data', BreakdownSchema)
+    Breakdown_data: mongoose.model('Breakdown_data', BreakdownSchema),
+    NodeLocation : mongoose.model('NodeLocation', nodeLocationSchema),
 };
