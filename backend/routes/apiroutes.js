@@ -1,7 +1,7 @@
 // routes/api.routes.js
 const express = require('express');
 const router = express.Router();
-const SensorData = require('../modals/sensorModal');
+const {SensorData, NodeLocation} = require('../modals/sensorModal');
 
 // --- POST Endpoint to receive data from Gateway ---
 // URL: POST /api/data
@@ -82,6 +82,35 @@ router.get('/data/history/:nodeId', async (req, res) => {
         res.status(200).json(history);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching historical data', error: error.message });
+    }
+});
+
+
+
+router.get('/location/:nodeId', async (req, res) => {
+    try {
+        const { nodeId } = req.params;
+        const data = await NodeLocation.findOne({ nodeId: nodeId });
+        
+        if (!data) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Location not found for this node' 
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: data
+        });
+        
+    } catch (error) {
+        console.error('Error fetching location:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error', 
+            error: error.message 
+        });
     }
 });
 
