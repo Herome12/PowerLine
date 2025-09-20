@@ -1,7 +1,7 @@
 // routes/api.routes.js
 const express = require('express');
 const router = express.Router();
-const {SensorData, NodeLocation} = require('../modals/sensorModal');
+const {SensorData, NodeLocation,Breakdown_data,DataHistory} = require('../modals/sensorModal');
 
 // --- POST Endpoint to receive data from Gateway ---
 // URL: POST /api/data
@@ -114,5 +114,42 @@ router.get('/location/:nodeId', async (req, res) => {
     }
 });
 
+router.get('/alerts', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50; // Default to 50 latest alerts
+        const nodeId = req.query.nodeId; // Optional filter by nodeId
+        
+        // Build query filter
+        let filter = {};
+        if (nodeId) {
+            filter = {
+                $or: [
+                    { outNodeID: nodeId },
+                    { inNodeID: nodeId }
+                ]
+            };
+        }
+        
+        const alerts = await Breakdown_data.find(filter)
+            .sort({ createdAt: -1 }) // Most recent first
+            .limit(limit);
+        
+        res.status(200).json(alerts);
+        
+    } catch (error) {
+        console.error('Error fetching breakdown alerts:', error);
+        res.status(500).json({ 
+            message: 'Error fetching breakdown alerts', 
+            error: error.message 
+        });
+    }
+});
 
+router.get('/data/history/:nodeId', async(req,res)=>{
+
+    const d=await DataHistory.find({nodeId:req.params.nodeId}).sort({createdAt:-1}).limit(1);
+
+} 
+   
+)
 module.exports = router;
