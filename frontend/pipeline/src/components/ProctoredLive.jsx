@@ -12,6 +12,27 @@ function ProctoredLive() {
   const [error, setError] = useState(null);
   const prevNodesRef = useRef();
 
+  // 🔥 SIMPLE NODEIP DEDUPLICATION
+  const removeDuplicatesByNodeId = (data) => {
+    if (!Array.isArray(data)) return data;
+    
+    const uniqueNodes = [];
+    const seenNodeIds = new Set();
+    
+    // Keep latest record for each nodeId (iterate in reverse to keep latest)
+    for (let i = data.length - 1; i >= 0; i--) {
+      const node = data[i];
+      const nodeId = node.nodeId || node.node_id;
+      
+      if (nodeId && !seenNodeIds.has(nodeId)) {
+        seenNodeIds.add(nodeId);
+        uniqueNodes.unshift(node); // Add to beginning to maintain order
+      }
+    }
+    
+    return uniqueNodes;
+  };
+
   useEffect(() => {
     const prevNodes = prevNodesRef.current;
     if (prevNodes) {
@@ -31,7 +52,10 @@ function ProctoredLive() {
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
-        setNodes(data);
+        
+        // 🔥 REMOVE DUPLICATES BY NODEID
+        const uniqueData = removeDuplicatesByNodeId(data);
+        setNodes(uniqueData);
         setError(null);
       } catch (err) {
         setError("Failed to fetch data. Is the backend server running?");
@@ -54,7 +78,9 @@ function ProctoredLive() {
       {error && <div className="error-message">{error}</div>}
       {!loading && !error && (
         <div className="dashboard-grid">
-          {nodes.map((node) => ( <SensorCard key={node._id} node={node} /> ))}
+          {nodes.map((node) => (
+            <SensorCard key={node._id} node={node} />
+          ))}
         </div>
       )}
     </>
