@@ -47,17 +47,15 @@ const AuthoritySchema = new mongoose.Schema({
 const BreakdownSchema = new mongoose.Schema({
     outNodeID: {
     type: String,
-    required: true,
     maxlength: 9
   },
   inNodeID: {
     type: String,
-    required: true,
     maxlength: 9
   },
   issueID: {
     type: Number,
-    required: true
+   
   }
 }, {
     timestamps: true

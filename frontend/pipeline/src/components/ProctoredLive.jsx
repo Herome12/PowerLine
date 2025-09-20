@@ -100,6 +100,6 @@ function ProctoredLive() {
       )}
     </>
   );
-}
+} 
 
 export default ProctoredLive;
