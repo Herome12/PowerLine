@@ -10,7 +10,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 
 const apiRoutes = require('./routes/apiroutes');
-const { SensorData, Authority, Breakdown_data, NodeLocation } = require('./modals/sensorModal');
+const { SensorData, Authority, Breakdown_data, NodeLocation, DataHistory } = require('./modals/sensorModal'); // ADD DataHistory
 const { sendBreakdownAlerts } = require('./services/mail');
 
 // --- App Configuration ---
@@ -66,6 +66,28 @@ mqttClient.on('error', (error) => {
     console.error('MQTT Connection Error:', error);
 });
 
+// 🔥 ADD HISTORY UPDATE FUNCTION
+const updateCurrentHistory = async (nodeId, currentValue) => {
+    try {
+        const result = await DataHistory.findOneAndUpdate(
+            { nodeId: nodeId },
+            {
+                $push: { current: currentValue }
+            },
+            { 
+                upsert: true,  // Create if not exists
+                new: true      // Return updated document
+            }
+        );
+        
+        console.log(`📊 History updated for node: ${nodeId} with current: ${currentValue}`);
+        return result;
+        
+    } catch (error) {
+        console.error('❌ Error updating history:', error);
+        throw error;
+    }
+};
 
 mqttClient.on('message', async (topic, message) => {
     const payload = message.toString();
@@ -112,6 +134,11 @@ mqttClient.on('message', async (topic, message) => {
                 voltage: newRecord.voltage,
                 relay: newRecord.relay
             });
+            
+            // 🔥 STEP 3: UPDATE HISTORY (NEW ADDITION)
+            if (data.current !== undefined && data.current !== null) {
+                await updateCurrentHistory(nodeId, data.current);
+            }
             
             // 🔍 VERIFICATION: Count should always be 1
             const finalCount = await SensorData.countDocuments({ nodeId: nodeId });
@@ -181,6 +208,40 @@ app.get('/', (req, res) => {
     res.send('Powerline Monitoring Backend is running! ⚡');
 });
 
+// Test endpoint for breakdown (add this before server.listen)
+app.post('/test/breakdown', async (req, res) => {
+    try {
+        const data = req.body;
+        
+        // Create new breakdown record with only 3 fields
+        const newBreakdown = new Breakdown_data({
+            outNodeID: data.outNodeID,
+            inNodeID: data.inNodeID,
+            issueID: data.issueID
+        });
+        
+        await newBreakdown.save();
+        
+        // 🔥 EMIT SOCKET EVENT
+        io.emit('new-breakdown', newBreakdown);
+        console.log('🚨 Emitted "new-breakdown" event to website clients');
+        
+        res.json({
+            success: true,
+            message: 'Breakdown alert triggered successfully',
+            data: newBreakdown
+        });
+        
+    } catch (error) {
+        console.error('❌ Error in /test/breakdown endpoint:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to trigger breakdown alert',
+            error: error.message
+        });
+    }
+});
+
 // Test endpoint for manual testing
 app.post('/test', async (req, res) => {
     try {
@@ -208,6 +269,11 @@ app.post('/test', async (req, res) => {
                 }
             );
             
+            // 🔥 ALSO UPDATE HISTORY
+            if (data.current !== undefined && data.current !== null) {
+                await updateCurrentHistory(data.nodeId, data.current);
+            }
+            
             console.log(`🔄 Updated existing sensor data for node: ${data.nodeId}`);
             res.json({
                 success: true,
@@ -229,6 +295,12 @@ app.post('/test', async (req, res) => {
             });
             
             await newData.save();
+            
+            // 🔥 ALSO UPDATE HISTORY
+            if (data.current !== undefined && data.current !== null) {
+                await updateCurrentHistory(data.nodeId, data.current);
+            }
+            
             console.log(`✅ Created new sensor data record for node: ${data.nodeId}`);
             
             res.json({
