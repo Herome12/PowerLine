@@ -37,23 +37,23 @@ const SensorDataSchema = new mongoose.Schema({
     timestamps: false // Don't auto-manage timestamps since we have our own
 });
 const AuthoritySchema = new mongoose.Schema({
-    entity_id: { type: String, required: true },
+
     name: { type: String, required: true },
     number: { type: String, required: true },
     gmail: { type: String, required: true },
-    node_id: { type: String, required: true }
+    
 });
 
 const BreakdownSchema = new mongoose.Schema({
-    outNodeID: {
+    outNodeId: {
     type: String,
     maxlength: 9
   },
-  inNodeID: {
+  inNodeId: {
     type: String,
     maxlength: 9
   },
-  issueID: {
+  issueId: {
     type: Number,
    
   }

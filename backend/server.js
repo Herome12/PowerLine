@@ -1,28 +1,27 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const mqtt = require('mqtt');
-const nodemailer = require('nodemailer');
-const { sendBreakdownAlert, checkTwilioStatus } = require('./services/sms');
-require('dotenv').config();
 const http = require('http');
+const path = require('path');
 const { Server } = require("socket.io");
+require('dotenv').config();
 
+// --- Import Custom Modules ---
 const apiRoutes = require('./routes/apiroutes');
-const { SensorData, Authority, Breakdown_data, NodeLocation, DataHistory } = require('./modals/sensorModal'); // ADD DataHistory
+const { SensorData, Authority, Breakdown_data, DataHistory } = require('./modals/sensorModal');
 const { sendBreakdownAlerts } = require('./services/mail');
+const { sendBreakdownAlert } = require('./services/sms');
 
-// --- App Configuration ---
+// --- App & Server Configuration ---
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: ['http://localhost:3000', '*'], // Allow React dev server
         methods: ["GET", "POST"]
     }
 });
-
 const PORT = process.env.PORT || 5000;
 
 // --- Middleware ---
@@ -30,28 +29,25 @@ app.use(cors());
 app.use(express.json());
 
 // --- Database Connection ---
-mongoose.connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
-    .then(() => console.log(' MongoDB connected successfully.'))
-    .catch(err => console.error(' MongoDB connection error:', err));
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('✅ MongoDB connected.'))
+    .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// --- MQTT Client Setup (Updated for HiveMQ Cloud) ---
+// --- MQTT Client Setup ---
 const mqttOptions = {
-  username: process.env.HIVEMQ_USERNAME,
-  password: process.env.HIVEMQ_PASSWORD,
-  port: process.env.HIVEMQ_PORT
+    username: process.env.HIVEMQ_USERNAME,
+    password: process.env.HIVEMQ_PASSWORD,
+    port: process.env.HIVEMQ_PORT
 };
-
-// Use `mqtts://` for a secure TLS connection
 const mqttClient = mqtt.connect(`mqtts://${process.env.HIVEMQ_URL}`, mqttOptions);
 
 const TOPICS = {
     SENSOR_DATA: 'powerline/sensor/data',
-    BREAKDOWN: 'powerline/breakdown'
+    BREAKDOWN: 'powerline/breakdown',
+    COMMAND: 'powerline/command' // FIX: Added the missing command topic
 };
 
+// --- Helper Functions for MQTT Logic ---
 mqttClient.on('connect', () => {
     console.log(' MQTT client connected securely to HiveMQ Cloud.');
     mqttClient.subscribe(TOPICS.SENSOR_DATA, (err) => {
@@ -89,6 +85,10 @@ const updateCurrentHistory = async (nodeId, currentValue) => {
     }
 };
 
+// --- Mail Cooldown Logic ---
+const lastMailSent = {}; // { nodeId: Date }
+const MAIL_COOLDOWN = 5 * 60 * 1000; // 5 minutes
+
 mqttClient.on('message', async (topic, message) => {
     const payload = message.toString();
     console.log(`📨 MQTT Message: ${payload}`);
@@ -110,7 +110,7 @@ mqttClient.on('message', async (topic, message) => {
             const deleteResult = await SensorData.deleteMany({ nodeId: nodeId });
             
             if (deleteResult.deletedCount > 0) {
-                console.log(`🗑️ Deleted ${deleteResult.deletedCount} existing record(s) for nodeId: ${nodeId}`);
+                console.log(`🗑 Deleted ${deleteResult.deletedCount} existing record(s) for nodeId: ${nodeId}`);
             } else {
                 console.log(`📝 No existing records found for nodeId: ${nodeId}`);
             }
@@ -145,7 +145,7 @@ mqttClient.on('message', async (topic, message) => {
             console.log(`✅ Final count for nodeId '${nodeId}': ${finalCount}`);
             
             if (finalCount !== 1) {
-                console.warn(`⚠️ Unexpected count: ${finalCount} (should be 1)`);
+                console.warn(`⚠ Unexpected count: ${finalCount} (should be 1)`);
             }
             
         } catch (error) {
@@ -163,31 +163,22 @@ mqttClient.on('message', async (topic, message) => {
             io.emit('new-breakdown', newData);
             console.log('Emitted "new-breakdown" event to website clients.');
             
-            // Find authorities for this node
-            const authorities = await Authority.find({ node_id: data.nodeId });
-            
-            if (authorities.length === 0) {
-                console.log(`⚠️ No authorities found for node: ${data.nodeId}`);
-                return;
-            }
-            
-            const gmails = authorities.map(auth => auth.gmail);
-            const numbers = authorities.map(auth => auth.number);
-            
-            // Send alerts
-            const emailSent = await sendBreakdownAlerts(gmails, data);
-            const smsResults = await sendBreakdownAlert(numbers, data);
-            
-            if (emailSent) {
-                console.log(`📧 Breakdown email alerts sent successfully to ${gmails.length} authorities`);
+            const nodeId = data.nodeId;
+            const now = Date.now();
+
+            // 🔥 Check cooldown
+            if (!lastMailSent[nodeId] || (now - lastMailSent[nodeId]) > MAIL_COOLDOWN) {
+                const gmails=["raghavdhiman2005@gmail.com"];
+                const emailSent = await sendBreakdownAlerts(gmails, data);
+                
+                if (emailSent) {
+                    lastMailSent[nodeId] = now; // update last sent time
+                    console.log(`📧 Breakdown email alerts sent successfully for node ${nodeId}. Next mail allowed after ${MAIL_COOLDOWN/60000} minutes.`);
+                } else {
+                    console.log('❌ Failed to send breakdown email alerts');
+                }
             } else {
-                console.log('❌ Failed to send breakdown email alerts');
-            }
-            
-            if (smsResults) {
-                console.log(`📱 Breakdown SMS alerts sent successfully to ${numbers.length} authorities`);
-            } else {
-                console.log('❌ Failed to send breakdown SMS alerts');
+                console.log(`⏳ Mail suppressed for node ${nodeId}. Still in cooldown.`);
             }
             
         } catch (error) {
@@ -196,132 +187,34 @@ mqttClient.on('message', async (topic, message) => {
     }
 });
 
+// --- Socket.IO Connection Handler ---
 io.on('connection', (socket) => {
-    console.log('A user connected to the website dashboard');
+    console.log(`✅ User connected to dashboard: ${socket.id}`);
+
+    socket.on('resolve-fault', (data) => {
+        const { inNodeId ,outNodeId} = data;
+        console.log(`✅ Received resolve command for node: ${inNodeId}`);
+        const commandPayload = JSON.stringify({ outNodeID:outNodeId, inNodeID: inNodeId, status: 1 });
+        console.log(commandPayload);
+        mqttClient.publish(TOPICS.COMMAND, commandPayload);
+    });
+
+    socket.on('disconnect', () => console.log(`🔌 User disconnected: ${socket.id}`));
 });
 
-// --- API Routes ---
+// --- API Routes & Static File Serving ---
 app.use('/api', apiRoutes);
 
-// --- Root Endpoint ---
-app.get('/', (req, res) => {
-    res.send('Powerline Monitoring Backend is running! ⚡');
-});
+// --- Serve React App (for Production) ---
+app.use(express.static(path.join(__dirname, 'build')));
 
-// Test endpoint for breakdown (add this before server.listen)
-app.post('/test/breakdown', async (req, res) => {
-    try {
-        const data = req.body;
-        
-        // Create new breakdown record with only 3 fields
-        const newBreakdown = new Breakdown_data({
-            outNodeID: data.outNodeID,
-            inNodeID: data.inNodeID,
-            issueID: data.issueID
-        });
-        
-        await newBreakdown.save();
-        
-        // 🔥 EMIT SOCKET EVENT
-        io.emit('new-breakdown', newBreakdown);
-        console.log('🚨 Emitted "new-breakdown" event to website clients');
-        
-        res.json({
-            success: true,
-            message: 'Breakdown alert triggered successfully',
-            data: newBreakdown
-        });
-        
-    } catch (error) {
-        console.error('❌ Error in /test/breakdown endpoint:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to trigger breakdown alert',
-            error: error.message
-        });
-    }
-});
-
-// Test endpoint for manual testing
-app.post('/test', async (req, res) => {
-    try {
-        const data = req.body;
-        
-        // Check if node already exists
-        const existingNode = await SensorData.findOne({ nodeId: data.nodeId });
-        
-        if (existingNode) {
-            // Update existing node
-            const updatedData = await SensorData.findOneAndUpdate(
-                { nodeId: data.nodeId },
-                { 
-                    $set: {
-                        current: data.current,
-                        voltage: data.voltage,
-                        relay: data.relay,
-                        timestamp: data.timestamp,
-                        updatedAt: new Date()
-                    }
-                },
-                { 
-                    new: true,
-                    runValidators: true
-                }
-            );
-            
-            // 🔥 ALSO UPDATE HISTORY
-            if (data.current !== undefined && data.current !== null) {
-                await updateCurrentHistory(data.nodeId, data.current);
-            }
-            
-            console.log(`🔄 Updated existing sensor data for node: ${data.nodeId}`);
-            res.json({
-                success: true,
-                message: 'Data updated successfully',
-                operation: 'updated',
-                data: updatedData
-            });
-            
-        } else {
-            // Create new node
-            const newData = new SensorData({
-                nodeId: data.nodeId,
-                current: data.current,
-                voltage: data.voltage,
-                relay: data.relay,
-                timestamp: data.timestamp,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
-            
-            await newData.save();
-            
-            // 🔥 ALSO UPDATE HISTORY
-            if (data.current !== undefined && data.current !== null) {
-                await updateCurrentHistory(data.nodeId, data.current);
-            }
-            
-            console.log(`✅ Created new sensor data record for node: ${data.nodeId}`);
-            
-            res.json({
-                success: true,
-                message: 'New data created successfully',
-                operation: 'created',
-                data: newData
-            });
-        }
-        
-    } catch (error) {
-        console.error('❌ Error in /test endpoint:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-            error: error.message
-        });
-    }
+// FIX: Use a regular expression for a more robust catch-all route
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // --- Start Server ---
 server.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.log(`🕒 Current time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`);
 });

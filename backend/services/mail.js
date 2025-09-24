@@ -1,4 +1,3 @@
-
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -26,30 +25,25 @@ async function sendBreakdownAlerts(gmails, breakdownData) {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: gmails.join(', '), // Send to multiple emails
-            subject: `🚨 BREAKDOWN ALERT - Node ${breakdownData.node_id}`,
+            subject: `🚨 BREAKDOWN ALERT - Issue Id ${breakdownData.issueId}`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #d32f2f;">⚡ POWERLINE BREAKDOWN ALERT</h2>
                     
                     <div style="background-color: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0;">
                         <h3>Breakdown Details:</h3>
-                        <p><strong>Node ID:</strong> ${breakdownData.node_id}</p>
-                        <p><strong>Message:</strong> ${breakdownData.breakdown_message}</p>
-                        <p><strong>Current:</strong> ${breakdownData.current} A</p>
-                        <p><strong>Voltage Present:</strong> ${breakdownData.voltage_present ? 'Yes' : 'No'}</p>
-                        <p><strong>Relay Status:</strong> ${breakdownData.relay_status}</p>
+                        <p><strong>Issue ID:</strong> ${breakdownData.issueId}</p>
+                        <p><strong>Out Nodes:</strong> ${breakdownData.outNodeId}</p>
+                         <p><strong>In Nodes:</strong> ${breakdownData.inNodeId}</p>
+                       
+                        
                         <p><strong>Time:</strong> ${new Date(breakdownData.timestamp).toLocaleString()}</p>
                     </div>
                     
-                    <div style="background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                        <h3>Location:</h3>
-                        <p><strong>Latitude:</strong> ${breakdownData.gps.lat}</p>
-                        <p><strong>Longitude:</strong> ${breakdownData.gps.lon}</p>
-                       
-                    </div>
+                  
                     
                     <div style="background-color: #fff3e0; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                        <p><strong>⚠️ IMMEDIATE ACTION REQUIRED</strong></p>
+                        <p><strong>⚠ IMMEDIATE ACTION REQUIRED</strong></p>
                         <p>Please investigate and resolve this issue immediately.</p>
                     </div>
                     

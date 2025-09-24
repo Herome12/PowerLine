@@ -66,6 +66,7 @@ function SensorCard({ node }) {
           <p><span>Current:</span>{node.current.toFixed(2)} A</p>
           <p><span>Relay Status:</span>{node.relay_status || node.relay}</p>
           <p><span>Voltage:</span>{node.voltage ? 'Present' : 'Absent'}</p>
+          
         </div>
       </Link>
       

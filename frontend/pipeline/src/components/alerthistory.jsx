@@ -87,9 +87,9 @@ function AlertHistoryPage() {
               {alerts.map((alert, index) => (
                 <tr key={alert._id} className="alert-row">
                   <td>{index + 1}</td>
-                  <td className="node-id">{alert.outNodeID}</td>
-                  <td className="node-id">{alert.inNodeID}</td>
-                  <td className="issue-id">{alert.issueID}</td>
+                  <td className="node-id">{alert.outNodeId}</td>
+                  <td className="node-id">{alert.inNodeId}</td>
+                  <td className="issue-id">{alert.issueId}</td>
                   <td className="timestamp">
                     {formatDate(alert.createdAt || alert.timestamp)}
                   </td>
